@@ -162,3 +162,59 @@ A change is done when it fulfills the explicit request, preserves unrelated
 behaviors, respects existing architecture and security boundaries, and has
 an honest account of validation and remaining risks. **Do not redesign the
 whole app or refactor unrelated modules as a side effect.**
+
+
+## 8. Plan-first and persistent project context
+
+- For a substantial CRM feature, investigate existing routes, entities, schemas, role boundaries, integrations and active conventions before designing changes. Distinguish discovery/planning from implementation. When the user requests a plan only, produce scope, assumptions, affected modules, alternatives, risks, acceptance criteria and staged tasks **without editing code**.
+- Keep durable cross-project rules in workspace knowledge and project-specific facts (entities, roles, architecture, exceptions) in project knowledge, where these facilities exist. Avoid repeating entire playbooks in always-on context; load targeted skills for task-specific procedures.
+- For complex work, decompose implementation into small, independently verifiable stages (schema/access, API/domain logic, UI, integration, tests). Do not make unrequested stages or architecture changes.
+
+## 9. Root-cause debugging and stopping repair loops
+
+- Diagnose before editing. Reproduce or precisely characterize the observed failure, inspect logs, errors, recent changes and the actual runtime/deployment state, trace the data path, and propose a falsifiable cause. Never treat hiding an error as resolving it.
+- Select diagnostic focus according to the symptom: build/type/preview, frontend behavior, state/cache, auth/RLS, Edge Function/API, configuration or deployment.
+- After **two failed repair attempts** or repeated regressions, stop code changes and report what was tried, evidence, side effects and competing hypotheses. Reassess the cause before a different fix; don't keep modifying settings at random.
+- Isolate a minimal reproduction or revert to a verified known-good state **only with authorization**, especially when migrations or production data are involved. Git rollback alone does not roll back a database.
+- When an external service, provider limitation or outage is the cause, report that boundary instead of changing working code.
+
+## 10. Evidence-based testing and regression protection
+
+- Match verification to the change: inspect responsive layout for UI changes; use frontend tests for forms/filters/branching; direct backend or integration tests for permissions/validation; browser end-to-end testing for critical flows spanning layers.
+- Prioritize: the core CRM workflow; login/session/logout; tenant isolation and role restrictions; financial/permission/business calculations; important create/edit/delete operations; exports and API failure handling.
+- Add an appropriately scoped regression test when fixing an established bug, when the project supports testing and modification is authorized. Avoid brittle tests that only duplicate static markup or chase coverage percentages.
+- Use isolated test data and sandbox credentials when testing writes or payments. Never run destructive operations against production simply to verify a change. Distinguish observed passes, failures and untested scenarios.
+- Confirm list filters, server pagination, mutation invalidation, loading/empty/error states and permission-dependent actions after related changes.
+
+## 11. CRM responsive acceptance gates
+
+- Verify intended screens at narrow mobile (~320px), tablet and desktop widths, including browser zoom/reflow when the tooling permits; don't claim a pass for untested widths.
+- Prevent page-level horizontal overflow; large data tables and timelines may have their **own** contained horizontal scroll with visible affordance and accessible interactions.
+- Diagnose the specific overflow cause (non-shrinking flex child, grid min-width, fixed dimension, unbreakable text, sidebar/modal) instead of hiding it globally with body overflow clipping.
+- On mobile, keep filters, bulk actions, forms, dialogs, dropdowns, date pickers and navigation reachable by touch and keyboard. Support readable field text, practical touch targets and safe-area insets.
+- Preserve logical DOM/focus order and ensure no hover-only operation is essential for a user.
+
+## 12. Two-phase technical debt audit and safe cleanup
+
+- **Phase A, audit-only:** inspect active routes, registrations, imports, exports, duplicate logic, unused dependencies, stale types, effects, listeners, RLS, jobs, build configuration, design assets and tests. Never modify source, configuration or data in this phase.
+- For apparent dead code, first investigate dynamic imports, feature flags, runtime registrations, scheduled jobs, database functions, external consumers and build-time references. If uncertain, label **requires verification**, not safe to delete.
+- Each finding must state evidence (path/symbol/line if known), confidence, severity, impact, safe remedy, change risk and validation. Group proposed changes into independent, reviewable batches.
+- **Phase B, approved cleanup:** begin only after the user explicitly approves named findings/batches; change no others. Preserve exported contracts, behavior, data and design, verify each batch, and summarize differences and outstanding risks.
+- Audit-only instructions always take precedence over examples elsewhere that describe implementation.
+
+## 13. Transactional email, integrations and publish safety
+
+- For CRM notifications distinguish authentication emails from event-triggered transactional emails. Use the configured sender/provider, verified domains and appropriate SPF/DKIM/DMARC; never claim delivery solely because the API returned success.
+- Do not introduce a new payment processor, mail vendor, MCP endpoint or analytics tracker unless required. For AI/MCP tools exposed by a CRM, treat every tool invocation as a server-side request with independent authentication, tenant authorization, input validation, logging and least privilege.
+- Before production publishing, check current live version against preview, access permissions, secrets, auth, RLS, role-based flows, critical integrations and rollback/recovery steps. Publishing a frontend snapshot does not establish that database or external service changes are reversible.
+- When external hosting is requested, first inventory frontend, backend, database, storage, email and scheduled jobs, including responsibility for backups and operations; never imply that moving code alone migrates the full application.
+
+## Origin and use of these additions
+
+Adapted as practical CRM-specific guidance after reviewing the public repository
+[ silvioventre/lovable-skills ](https://github.com/silvioventre/lovable-skills)
+(in particular its plan, knowledge, debug, test, codebase audit, responsive, secure,
+emails, MCP, ship and deploy-external playbooks). These are selected principles,
+not copies of the original complete skills or their references. When a detailed
+task-specific skill exists and is compatible, consult it instead of forcing every
+procedure into every request.
