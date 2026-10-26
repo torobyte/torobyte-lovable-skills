@@ -35,3 +35,9 @@ El contenido es una guía, **no autoriza** modificaciones automáticas de códig
 - Cambios de permisos o secretos: `torobyte-security`.
 - Auditoría: `torobyte-code-audit`.
 - Error o regresión: `torobyte-debug-test`.
+
+## Diseño de software multiplataforma
+
+- [torobyte-software-design](skills/torobyte-software-design/SKILL.md) — dirección visual y experiencia de usuario para software de escritorio, tablet, móvil, PWA y apps nativas; adaptable a Google Antigravity y Lovable.
+
+**Antigravity:** copia la carpeta de la skill a `.agents/skills/torobyte-software-design/` en el proyecto. **Lovable:** importa la carpeta desde Settings → Skills → Import from GitHub. Consulta primero las opciones de instalación de la versión instalada.
